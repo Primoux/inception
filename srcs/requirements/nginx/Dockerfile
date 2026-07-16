@@ -8,3 +8,7 @@ RUN mkdir -p /etc/nginx/ssl && openssl req -x509 -nodes -days 365 -newkey rsa:20
     -subj "/C=FR/L=Lyon/O=42/CN=enchevri.42.fr"
 
 COPY conf/nginx.conf /etc/nginx/conf.d/
+
+EXPOSE 433
+
+CMD ["nginx", "-g", "daemon off;"]
