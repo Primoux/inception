@@ -3,16 +3,18 @@
 SRCS =  "./srcs/docker-compose.yml"
 
 help:
+	@echo "---------------------------------"
 	@echo "Available commands:"
-	@echo ""
-	@echo "  make help          Show this help message"
-	@echo "  make all           Build and start all containers"
-	@echo "  make down          Stop the containers"
-	@echo "  make clean         Stop the containers and remove volumes/data"
-	@echo "  make fclean        Same as clean, also removes local images"
-	@echo "  make re            Run fclean then all"
-	@echo "  make exec-mariadb  Open a shell inside the mariadb container"
-	@echo "  make exec-nginx    Open a shell inside the nginx container"
+	@echo "  make all            Build and start all containers"
+	@echo "  make down           Stop the containers"
+	@echo "  make clean          Stop the containers and remove volumes/data"
+	@echo "  make fclean         Same as clean, also removes local images"
+	@echo "  make re             Run fclean then all"
+	@echo "  make exec-mariadb   Open a shell inside the mariadb container"
+	@echo "  make exec-nginx     Open a shell inside the nginx container"
+	@echo "  make exec-wordpress Open a shell inside the wordpress container"
+	@echo "---------------------------------"
+
 
 all:
 	mkdir -p /home/$(USER)/data/mariadb
@@ -30,3 +32,5 @@ exec-mariadb:
 	docker exec -it mariadb bash
 exec-nginx:
 	docker exec -it nginx bash
+exec-wordpress:
+	docker exec -it wordpress bash

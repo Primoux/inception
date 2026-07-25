@@ -1,6 +1,7 @@
 FROM debian:bookworm
 
-RUN apt-get update && apt-get install -y nginx openssl
+RUN apt-get update && apt-get install -y nginx openssl \
+    && rm /etc/nginx/sites-enabled/default
 
 RUN mkdir -p /etc/nginx/ssl && openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -keyout /etc/nginx/ssl/enchevri.key \
@@ -9,6 +10,6 @@ RUN mkdir -p /etc/nginx/ssl && openssl req -x509 -nodes -days 365 -newkey rsa:20
 
 COPY conf/nginx.conf /etc/nginx/conf.d/
 
-EXPOSE 433
+EXPOSE 443
 
 CMD ["nginx", "-g", "daemon off;"]
