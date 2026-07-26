@@ -15,7 +15,8 @@ help:
 	@echo "  make exec-wordpress Open a shell inside the wordpress container"
 	@echo "---------------------------------"
 
-
+setup:
+	@make -C tools/ --no-print-directory 
 all:
 	mkdir -p /home/$(USER)/data/mariadb
 	docker compose -f $(SRCS) up --build -d
