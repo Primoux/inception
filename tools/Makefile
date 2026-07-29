@@ -1,40 +1,23 @@
 SHELL=/bin/bash
 
-# COLOR
 RED = \033[0;31m
 GREEN = \033[0;32m
-YELLOW = \033[0;33m
 BLUE = \033[0;34m
-MAGENTA = \033[0;35m
 CYAN = \033[0;36m
-WHITE = \033[0;37m
-
-# BOLD COLOR
-BOLD_RED = \033[1;31m
-BOLD_GREEN = \033[1;32m
-BOLD_YELLOW = \033[1;33m
-BOLD_BLUE = \033[1;34m
-BOLD_CYAN = \033[1;36m
-
-# RESET
 NC = \033[0m
 
 .PHONY: all copy deps
 
-all: copy deps
-	@echo -e "$(GREEN)✓ FINISHED$(NC) (look at the $(RED)⚠ [WARN]$(NC))"
+all: deps copy
+	@echo -e "$(GREEN)✓ Setup finished$(NC)"
 
 deps:
-	@echo -e "For the project to run you should install deps"
-	@echo -ne "Run 'sudo apt update && sudo apt install docker.io docker-compose make' ? [Y/n] " && read A && if [[ $$A == "Y" ]] || [[ $$A == "y" ]] || [[ $$A == "" ]]; then sudo apt update && sudo apt install docker.io docker-compose make; else echo -e "$(RED)[WARN]$(NC) Install manually docker.io docker-compose make"; fi
-	@echo -e "$(RED)[WARN]$(NC) If you just installed docker you should add your user to the docker group"
+	@echo -e "$(BLUE)→ Checking dependencies...$(NC)"
+	@echo -ne "Install docker.io, docker-compose, make? [Y/n] " && read A && if [[ $$A == [Yy] ]] || [[ $$A == "" ]]; then sudo apt update && sudo apt install -y docker.io docker-compose make && echo -e "$(GREEN)✓ Done$(NC)"; else echo -e "$(RED)[WARN]$(NC) Install manually"; fi
+	@echo -ne "Add user to docker group? [Y/n] " && read B && if [[ $$B == [Yy] ]] || [[ $$B == "" ]]; then sudo usermod -aG docker $$USER && echo -e "$(GREEN)✓ Done$(NC) - restart shell or run: $(CYAN)newgrp docker$(NC)"; else echo -e "$(RED)[WARN]$(NC) Run manually: $(CYAN)sudo usermod -aG docker $$USER$(NC)"; fi
 
 copy:
-	@echo -e "$(CYAN)────────────────────────────────────────────────────────$(NC)"
-	@echo -e "$(BLUE)Copying .env and secrets files...$(NC)"
-	@echo ""
+	@echo -e "$(BLUE)→ Copying env files...$(NC)"
 	cp ../srcs/.env.exemple ../srcs/.env
 	cp ../secrets/.db_password.exemple ../secrets/.db_password
-	@echo ""
-	@echo -e "$(RED)[WARN]$(NC) You should change all the 'CHANGEME' in .env and secrets files"
-	@echo -e "$(CYAN)────────────────────────────────────────────────────────$(NC)"
+	@echo -e "$(RED)[WARN]$(NC) Update 'CHANGEME' values in .env and secrets files"
