@@ -14,7 +14,7 @@ all: deps copy
 deps:
 	@echo -e "$(BLUE)→ Checking dependencies...$(NC)"
 	@echo -ne "Install docker.io, docker-compose, make? [Y/n] " && read A && if [[ $$A == [Yy] ]] || [[ $$A == "" ]]; then sudo apt update && sudo apt install -y docker.io docker-compose make && echo -e "$(GREEN)✓ Done$(NC)"; else echo -e "$(RED)[WARN]$(NC) Install manually"; fi
-	@echo -ne "Add user to docker group? [Y/n] " && read B && if [[ $$B == [Yy] ]] || [[ $$B == "" ]]; then sudo usermod -aG docker $$USER && echo -e "$(GREEN)✓ Done$(NC) - restart shell or run: $(CYAN)newgrp docker$(NC)"; else echo -e "$(RED)[WARN]$(NC) Run manually: $(CYAN)sudo usermod -aG docker $$USER$(NC)"; fi
+	@echo -ne "Add user to docker group? [Y/n] " && read B && if [[ $$B == [Yy] ]] || [[ $$B == "" ]]; then sudo usermod -aG docker $$USER && echo -e "$(GREEN)✓ Done$(NC) - restart shell"; else echo -e "$(RED)[WARN]$(NC) Run manually: $(CYAN)sudo usermod -aG docker $$USER$(NC)"; fi
 
 copy:
 	@echo -e "$(BLUE)→ Copying env files...$(NC)"
