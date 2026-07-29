@@ -20,4 +20,5 @@ copy:
 	@echo -e "$(BLUE)→ Copying env files...$(NC)"
 	cp ../srcs/.env.exemple ../srcs/.env
 	cp ../secrets/.db_password.exemple ../secrets/.db_password
+	cp ../secrets/.db_root_password.exemple ../secrets/.db_root_password
 	@echo -e "$(RED)[WARN]$(NC) Update 'CHANGEME' values in .env and secrets files"
