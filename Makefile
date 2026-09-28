@@ -17,7 +17,7 @@ help:
 	@echo "---------------------------------"
 
 setup:
-	@make -C tools/ --no-print-directory 
+	@make -C tools/ --no-print-directory
 all:
 	mkdir -p /home/$(USER)/data/mariadb
 	docker compose -f $(SRCS) up --build -d
@@ -29,6 +29,7 @@ clean:
 fclean:
 	docker compose -f $(SRCS) down -v --rmi local
 	docker run --rm -v /home/$(USER)/data:/data debian:bookworm rm -rf /data/mariadb
+	rm -rf /home/$(USER)/data/
 re: fclean all
 exec-mariadb:
 	docker exec -it mariadb bash

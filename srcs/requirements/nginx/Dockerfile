@@ -1,15 +1,15 @@
 FROM debian:bookworm
 
-RUN apt-get update && apt-get install -y nginx openssl \
+RUN apt-get update && apt-get install -y nginx openssl gettext-base \
     && rm /etc/nginx/sites-enabled/default
 
-RUN mkdir -p /etc/nginx/ssl && openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-    -keyout /etc/nginx/ssl/enchevri.key \
-    -out /etc/nginx/ssl/enchevri.crt \
-    -subj "/C=FR/L=Lyon/O=42/CN=enchevri.42.fr"
+RUN mkdir -p /etc/nginx/ssl
 
 COPY conf/nginx.conf /etc/nginx/conf.d/
+COPY tools/entrypoint.sh /usr/local/bin/
+
+RUN chmod +x /usr/local/bin/entrypoint.sh
 
 EXPOSE 443
 
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
