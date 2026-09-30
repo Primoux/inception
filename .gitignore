@@ -1,4 +1,7 @@
 .env
 secrets/.db_password
 secrets/.db_root_password
+secrets/.wp_password_admin
+secrets/.wp_password_user
 *.log
+subject.md

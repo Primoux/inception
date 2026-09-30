@@ -1,5 +1,7 @@
-.PHONY: help all down clean fclean re exec-mariadb exec-nginx
+.PHONY: help all down clean fclean re exec-mariadb exec-nginx setup exec-wordpress
+
 .DEFAULT_GOAL := help
+
 SRCS =  "./srcs/docker-compose.yml"
 
 help:
@@ -18,22 +20,29 @@ help:
 
 setup:
 	@make -C tools/ --no-print-directory
+
 all:
 	mkdir -p /home/$(USER)/data/mariadb
 	docker compose -f $(SRCS) up --build -d
+
 down:
 	docker compose -f $(SRCS) down
+
 clean:
 	docker compose -f $(SRCS) down -v
 	docker run --rm -v /home/$(USER)/data:/data debian:bookworm rm -rf /data/mariadb
+
 fclean:
 	docker compose -f $(SRCS) down -v --rmi local
 	docker run --rm -v /home/$(USER)/data:/data debian:bookworm rm -rf /data/mariadb
 	rm -rf /home/$(USER)/data/
 re: fclean all
+
 exec-mariadb:
 	docker exec -it mariadb bash
+
 exec-nginx:
 	docker exec -it nginx bash
+
 exec-wordpress:
 	docker exec -it wordpress bash
