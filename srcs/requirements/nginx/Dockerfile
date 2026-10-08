@@ -10,6 +10,8 @@ COPY tools/entrypoint.sh /usr/local/bin/
 
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
+WORKDIR /var/www/html
+
 EXPOSE 443
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

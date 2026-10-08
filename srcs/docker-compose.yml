@@ -22,13 +22,22 @@ services:
       - inception
     ports:
       - "443:443"
+    volumes:
+      - wp_data:/var/www/html
   wordpress:
+    env_file: .env
     build: ./requirements/wordpress
     image: wordpress:v1
     container_name: wordpress
     restart: always
     networks:
       - inception
+    secrets:
+      - db_password
+      - wp_password_admin
+      - wp_password_user
+    volumes:
+      - wp_data:/var/www/html
 
 
 
@@ -39,6 +48,13 @@ volumes:
       type: none
       o: bind
       device: /home/${USER}/data/mariadb
+  wp_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/${USER}/data/wordpress
+
 
 networks:
   inception:
@@ -49,3 +65,7 @@ secrets:
     file: ../secrets/.db_password
   db_root_password:
     file: ../secrets/.db_root_password
+  wp_password_admin:
+    file: ../secrets/.wp_password_admin
+  wp_password_user:
+    file: ../secrets/.wp_password_user

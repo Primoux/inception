@@ -23,6 +23,7 @@ setup:
 
 all:
 	mkdir -p /home/$(USER)/data/mariadb
+	mkdir -p /home/$(USER)/data/wordpress
 	docker compose -f $(SRCS) up --build -d
 
 down:
@@ -35,6 +36,7 @@ clean:
 fclean:
 	docker compose -f $(SRCS) down -v --rmi local
 	docker run --rm -v /home/$(USER)/data:/data debian:bookworm rm -rf /data/mariadb
+	docker run --rm -v /home/$(USER)/data:/data debian:bookworm rm -rf /data/wordpress
 	rm -rf /home/$(USER)/data/
 re: fclean all
 
@@ -46,3 +48,6 @@ exec-nginx:
 
 exec-wordpress:
 	docker exec -it wordpress bash
+
+logs:
+	docker compose -f $(SRCS) logs -f
