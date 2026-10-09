@@ -20,6 +20,20 @@ The containers share a dedicated bridge network (`inception`). Persistent data (
                         └──── wp_data volume ──────┘            mariadb_data volume
 ```
 
+## Project description
+
+### Use of Docker and sources included in the project
+
+Docker is used to run each service in its own isolated, reproducible container, described by a Dockerfile and orchestrated by `docker compose`. All sources live in this repository:
+
+- `Makefile`: builds and manages the whole stack (it calls `docker compose`).
+- `srcs/docker-compose.yml`: services, network, volumes and secrets.
+- `srcs/requirements/<service>/`: one Dockerfile per service, with its configuration (`conf/`) and its start-up script (`tools/entrypoint.sh`).
+- `srcs/.env.exemple` and `secrets/*.exemple`: templates of the settings and passwords (the real files are git-ignored).
+- `tools/Makefile`: helper used by `make setup`.
+
+Every image is built from `debian:bookworm` (the penultimate stable Debian release); no ready-made service image is pulled.
+
 ### Design choices
 
 **Virtual Machines vs Docker.** A VM virtualizes a whole machine, including its own kernel, so it is heavy and slow to start but strongly isolated. A Docker container shares the host kernel and only isolates processes and the filesystem: it starts in seconds and uses far fewer resources, at the cost of weaker isolation. Here the VM is the host environment, and Docker splits the application into small, reproducible services.
