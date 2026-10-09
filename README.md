@@ -99,4 +99,4 @@ Other useful commands: `make down`, `make stop`, `make start`, `make restart`, `
 
 ### Use of AI
 
-Claude Code (Anthropic) was used as a coding assistant to review the project, clean up the WordPress and MariaDB entrypoint scripts, improve the Makefiles and draft this documentation. It was also used to build the bonus static website (the HTML, CSS and JavaScript of the terminal, its nginx configuration and the `/site/` proxy route). Every change was reviewed and tested by running the stack (full installation from empty data, container restarts, HTTPS check) before being kept.
+Claude Code (Anthropic) was used as a coding assistant to review the project, clean up the WordPress and MariaDB entrypoint scripts, improve the Makefiles and draft this documentation. It was also used to build the bonus static website (the HTML, CSS and JavaScript of the terminal). Every change was reviewed and tested by running the stack (full installation from empty data, container restarts, HTTPS check) before being kept.
