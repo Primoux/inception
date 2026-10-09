@@ -8,6 +8,7 @@ help:
 	@echo "---------------------------------"
 	@echo "Available commands:"
 	@echo "  make all		Build and start all containers"
+	@echo "  make up		Start all containers"
 	@echo "  make down		Stop the containers"
 	@echo "  make clean		Stop the containers and remove volumes/data"
 	@echo "  make fclean		Same as clean, also removes local images"
@@ -20,6 +21,9 @@ help:
 
 setup:
 	@make -C tools/ --no-print-directory
+
+up:
+	docker compose -f $(SRCS) up --build -d
 
 all:
 	mkdir -p /home/$(USER)/data/mariadb
@@ -38,6 +42,7 @@ fclean:
 	docker run --rm -v /home/$(USER)/data:/data debian:bookworm rm -rf /data/mariadb
 	docker run --rm -v /home/$(USER)/data:/data debian:bookworm rm -rf /data/wordpress
 	rm -rf /home/$(USER)/data/
+
 re: fclean all
 
 exec-mariadb:
@@ -51,3 +56,6 @@ exec-wordpress:
 
 logs:
 	docker compose -f $(SRCS) logs -f
+
+ps:
+	docker compose -f $(SRCS) ps
