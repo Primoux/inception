@@ -1,74 +1,83 @@
-.PHONY: help all down clean fclean re exec-mariadb exec-nginx setup exec-wordpress
+NAME     = inception
+SRCS     = ./srcs/docker-compose.yml
+DATA_DIR = /home/$(USER)/data
+COMPOSE  = docker compose -f $(SRCS)
+WIPE     = docker run --rm -v $(DATA_DIR):/data debian:bookworm sh -c 'rm -rf /data/mariadb /data/wordpress'
+
+.PHONY: all up dirs down stop start restart re clean fclean \
+	up-wordpress up-nginx up-mariadb \
+	down-wordpress down-nginx down-mariadb \
+	exec-mariadb exec-nginx exec-wordpress \
+	logs ps setup help
 
 .DEFAULT_GOAL := help
-
-SRCS =  "./srcs/docker-compose.yml"
 
 help:
 	@echo "---------------------------------"
 	@echo "Available commands:"
-	@echo "  make all		Build and start all containers"
-	@echo "  make up		Start all containers"
-	@echo "  make up-wordpress	Start the wordpress container"
-	@echo "  make up-nginx		Start the nginx container"
-	@echo "  make up-mariadb	Start the mariadb container"
-
-	@echo "  make down		Stop the containers"
-	@echo "  make clean		Stop the containers and remove volumes/data"
-	@echo "  make fclean		Same as clean, also removes local images"
-	@echo "  make re		Run fclean then all"
-	@echo "  make exec-mariadb	Open a shell inside the mariadb container"
-	@echo "  make exec-nginx	Open a shell inside the nginx container"
-	@echo "  make exec-wordpress	Open a shell inside the wordpress container"
-	@echo "  make setup		Launch the config makefile"
+	@echo "  make all               Create data dirs, build and start all containers"
+	@echo "  make up                Same as all"
+	@echo "  make down              Stop and remove the containers"
+	@echo "  make stop              Stop the containers (keep them)"
+	@echo "  make start             Start stopped containers"
+	@echo "  make restart           Restart all containers"
+	@echo "  make clean             Remove containers, volumes and data"
+	@echo "  make fclean            Same as clean, also removes images"
+	@echo "  make re                Run fclean then all"
+	@echo "  make up-<service>      Build and start one service (wordpress, nginx, mariadb)"
+	@echo "  make down-<service>    Stop and remove one service"
+	@echo "  make exec-<service>    Open a shell inside a container"
+	@echo "  make logs              Follow the logs"
+	@echo "  make ps                List the containers"
+	@echo "  make setup             Launch the config makefile"
 	@echo "---------------------------------"
 
 setup:
 	@make -C tools/ --no-print-directory
 
-up:
-	docker compose -f $(SRCS) up --build -d
+dirs:
+	mkdir -p $(DATA_DIR)/mariadb $(DATA_DIR)/wordpress
 
-all:
-	mkdir -p /home/$(USER)/data/mariadb
-	mkdir -p /home/$(USER)/data/wordpress
-	docker compose -f $(SRCS) up --build -d
+all: dirs
+	$(COMPOSE) up --build -d
 
-up-wordpress:
-	docker compose -f $(SRCS) up --build -d wordpress
-
-up-nginx:
-	docker compose -f $(SRCS) up --build -d nginx
-
-up-mariadb:
-	docker compose -f $(SRCS) up --build -d mariadb
+up: all
 
 down:
-	docker compose -f $(SRCS) down
+	$(COMPOSE) down
+
+stop:
+	$(COMPOSE) stop
+
+start:
+	$(COMPOSE) start
+
+restart:
+	$(COMPOSE) restart
+
+up-wordpress up-nginx up-mariadb: up-%: dirs
+	$(COMPOSE) up --build -d $*
+
+down-wordpress down-nginx down-mariadb: down-%:
+	$(COMPOSE) rm -sf $*
 
 clean:
-	docker compose -f $(SRCS) down -v
-	docker run --rm -v /home/$(USER)/data:/data debian:bookworm rm -rf /data/mariadb
+	$(COMPOSE) down -v
+	-$(WIPE)
+	-rm -rf $(DATA_DIR)
 
 fclean:
-	docker compose -f $(SRCS) down -v --rmi local
-	docker run --rm -v /home/$(USER)/data:/data debian:bookworm rm -rf /data/mariadb
-	docker run --rm -v /home/$(USER)/data:/data debian:bookworm rm -rf /data/wordpress
-	rm -rf /home/$(USER)/data/
+	$(COMPOSE) down -v --rmi all
+	-$(WIPE)
+	-rm -rf $(DATA_DIR)
 
 re: fclean all
 
-exec-mariadb:
-	docker exec -it mariadb bash
-
-exec-nginx:
-	docker exec -it nginx bash
-
-exec-wordpress:
-	docker exec -it wordpress bash
+exec-mariadb exec-nginx exec-wordpress: exec-%:
+	docker exec -it $* bash
 
 logs:
-	docker compose -f $(SRCS) logs -f
+	$(COMPOSE) logs -f
 
 ps:
-	docker compose -f $(SRCS) ps
+	$(COMPOSE) ps
