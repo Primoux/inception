@@ -81,3 +81,7 @@ logs:
 
 ps:
 	$(COMPOSE) ps
+
+purge: fclean
+	docker system prune -af --volumes
+	docker builder prune -af
