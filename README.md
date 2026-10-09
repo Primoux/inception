@@ -20,6 +20,20 @@ The containers share a dedicated bridge network (`inception`). Persistent data (
                         └──── wp_data volume ──────┘            mariadb_data volume
 ```
 
+### Bonus: static website
+
+A fourth container, `static-site`, serves a small static website written in HTML, CSS and JavaScript (no PHP). It is a resume presented as an interactive terminal: the visitor types commands such as `help`, `projects`, `infra` or `explain nginx`.
+
+| Service       | Role                                        | Exposed                      |
+|---------------|---------------------------------------------|------------------------------|
+| `static-site` | Dedicated nginx serving the static website  | port 8080 (internal network) |
+
+It is not published on the host. The main `nginx` container stays the only entry point and forwards `https://<login>.42.fr/site/` to it:
+
+```
+ Browser ──443/TLS──► nginx ──/site/ (HTTP proxy, 8080)──► static-site
+```
+
 ## Project description
 
 ### Use of Docker and sources included in the project
@@ -29,6 +43,7 @@ Docker is used to run each service in its own isolated, reproducible container, 
 - `Makefile`: builds and manages the whole stack (it calls `docker compose`).
 - `srcs/docker-compose.yml`: services, network, volumes and secrets.
 - `srcs/requirements/<service>/`: one Dockerfile per service, with its configuration (`conf/`) and its start-up script (`tools/entrypoint.sh`).
+- `srcs/requirements/bonus/static-site/`: the bonus service, with its Dockerfile, its nginx configuration (`conf/`) and the website itself (`site/`).
 - `srcs/.env.exemple` and `secrets/*.exemple`: templates of the settings and passwords (the real files are git-ignored).
 - `tools/Makefile`: helper used by `make setup`.
 
@@ -70,18 +85,18 @@ make            # shows the list of commands
 make all        # creates the data directories, builds the images and starts the containers
 ```
 
-The site is then available at `https://<login>.42.fr` (the certificate is self-signed, so the browser shows a warning). The administration area is at `https://<login>.42.fr/wp-admin`.
+The site is then available at `https://<login>.42.fr` (the certificate is self-signed, so the browser shows a warning). The administration area is at `https://<login>.42.fr/wp-admin`. The bonus static website is at `https://<login>.42.fr/site/`.
 
 Other useful commands: `make down`, `make stop`, `make start`, `make restart`, `make logs`, `make ps`, `make re`, `make clean` (removes containers, volumes **and data**), `make fclean` (also removes images). See `USER_DOC.md` and `DEV_DOC.md` for details.
 
 ## Resources
 
 - Docker documentation: https://docs.docker.com/ (Dockerfile reference, Compose file reference, secrets, volumes, networking)
-- NGINX documentation: https://nginx.org/en/docs/ (`ngx_http_ssl_module`, `ngx_http_fastcgi_module`)
+- NGINX documentation: https://nginx.org/en/docs/ (`ngx_http_ssl_module`, `ngx_http_fastcgi_module`, `ngx_http_proxy_module`)
 - WordPress and WP-CLI: https://developer.wordpress.org/cli/commands/
 - MariaDB documentation: https://mariadb.com/kb/en/documentation/
 - PHP-FPM configuration: https://www.php.net/manual/en/install.fpm.configuration.php
 
 ### Use of AI
 
-Claude Code (Anthropic) was used as a coding assistant to review the project, clean up the WordPress and MariaDB entrypoint scripts, improve the Makefiles and draft this documentation. Every change was reviewed and tested by running the stack (full installation from empty data, container restarts, HTTPS check) before being kept.
+Claude Code (Anthropic) was used as a coding assistant to review the project, clean up the WordPress and MariaDB entrypoint scripts, improve the Makefiles and draft this documentation. It was also used to build the bonus static website (the HTML, CSS and JavaScript of the terminal, its nginx configuration and the `/site/` proxy route). Every change was reviewed and tested by running the stack (full installation from empty data, container restarts, HTTPS check) before being kept.

@@ -51,7 +51,7 @@ services:
       wordpress:
         condition: service_healthy
       static-site:
-        condition: service_started
+        condition: service_healthy
     networks:
       - inception
     ports:
@@ -64,9 +64,13 @@ services:
     image: static-site:v1
     container_name: static-site
     restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8080/ > /dev/null || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     networks:
       - inception
-
 
 volumes:
   mariadb_data:
