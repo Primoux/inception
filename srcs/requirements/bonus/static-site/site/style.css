@@ -1,0 +1,135 @@
+:root {
+    --bg: #0a0e0a;
+    --fg: #7CFC7C;
+    --dim: #3f7f3f;
+    --accent: #d7ffd7;
+    --err: #ff6b6b;
+}
+
+[data-theme="amber"] {
+    --bg: #120d00;
+    --fg: #ffb000;
+    --dim: #8a5f00;
+    --accent: #ffe3a0;
+}
+
+[data-theme="cyan"] {
+    --bg: #00090d;
+    --fg: #3fd7ff;
+    --dim: #1d6f87;
+    --accent: #c9f3ff;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+    margin: 0;
+    height: 100%;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: "Fira Code", "DejaVu Sans Mono", Consolas, monospace;
+    font-size: 16px;
+    line-height: 1.45;
+}
+
+.crt {
+    position: relative;
+    min-height: 100%;
+    padding: 1.5rem;
+    max-width: 980px;
+    margin: 0 auto;
+    text-shadow: 0 0 6px color-mix(in srgb, var(--fg) 55%, transparent);
+}
+
+/* Scanlines */
+body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, 0) 0,
+        rgba(0, 0, 0, 0) 2px,
+        rgba(0, 0, 0, 0.18) 3px
+    );
+}
+
+#output div { white-space: pre-wrap; word-break: break-word; }
+#output .dim { color: var(--dim); }
+#output .accent { color: var(--accent); }
+#output .err { color: var(--err); }
+#output .cmd { color: var(--accent); }
+
+a { color: var(--accent); }
+
+/* Infra diagram */
+.diagram {
+    display: block;
+    width: 100%;
+    max-width: 640px;
+    height: auto;
+    margin: 0.5rem 0;
+}
+
+.diagram .link {
+    fill: none;
+    stroke: var(--dim);
+    stroke-width: 2;
+    stroke-dasharray: 4 4;
+}
+
+.diagram .node rect { fill: var(--bg); stroke: var(--fg); stroke-width: 2; }
+.diagram text { fill: var(--fg); font-family: inherit; font-size: 13px; text-shadow: none; }
+.diagram .label { fill: var(--dim); font-size: 11px; }
+.diagram .packet { fill: var(--accent); }
+
+/* Hidden games */
+.game {
+    display: block;
+    max-width: 100%;
+    margin: 0.5rem 0;
+    border: 1px solid var(--dim);
+}
+
+.matrix {
+    position: fixed;
+    inset: 0;
+    z-index: 5;
+    background: #000;
+}
+
+.prompt-line {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+}
+
+.prompt { color: var(--accent); white-space: nowrap; }
+
+#input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    color: var(--fg);
+    font: inherit;
+    caret-color: var(--fg);
+    text-shadow: inherit;
+}
+
+noscript {
+    display: block;
+    padding: 1rem;
+    color: var(--err);
+}
+
+@media (max-width: 600px) {
+    html, body { font-size: 14px; }
+    .prompt { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * { scroll-behavior: auto !important; }
+}

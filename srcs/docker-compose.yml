@@ -50,12 +50,23 @@ services:
     depends_on:
       wordpress:
         condition: service_healthy
+      static-site:
+        condition: service_started
     networks:
       - inception
     ports:
       - "443:443"
     volumes:
       - wp_data:/var/www/html
+
+  static-site:
+    build: ./requirements/bonus/static-site
+    image: static-site:v1
+    container_name: static-site
+    restart: always
+    networks:
+      - inception
+
 
 volumes:
   mariadb_data:

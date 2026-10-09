@@ -56,10 +56,10 @@ start:
 restart:
 	$(COMPOSE) restart
 
-up-wordpress up-nginx up-mariadb: up-%: dirs
+up-wordpress up-nginx up-mariadb up-static-site: up-%: dirs
 	$(COMPOSE) up --build -d $*
 
-down-wordpress down-nginx down-mariadb: down-%:
+down-wordpress down-nginx down-mariadb down-static-site: down-%:
 	$(COMPOSE) rm -sf $*
 
 clean:
