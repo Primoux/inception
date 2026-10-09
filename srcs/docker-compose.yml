@@ -50,12 +50,33 @@ services:
     depends_on:
       wordpress:
         condition: service_healthy
+      uptime-kuma:
+        condition: service_healthy
     networks:
-      - inception
+      inception:
+        aliases:
+          - ${DOMAIN_NAME}
+          - status.${DOMAIN_NAME}
     ports:
       - "443:443"
     volumes:
       - wp_data:/var/www/html
+
+  uptime-kuma:
+    build: ./requirements/bonus/uptime-kuma
+    image: uptime-kuma:v1
+    container_name: uptime-kuma
+    restart: always
+    env_file: .env
+    networks:
+      - inception
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3001 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - uptime_kuma_data:/app/data
 
 volumes:
   mariadb_data:
@@ -70,6 +91,12 @@ volumes:
       type: none
       o: bind
       device: /home/${USER}/data/wordpress
+  uptime_kuma_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/${USER}/data/uptime-kuma
 
 networks:
   inception:

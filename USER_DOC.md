@@ -2,11 +2,12 @@
 
 ## What the stack provides
 
-A WordPress website served over HTTPS, made of three services:
+A WordPress website served over HTTPS, made of three services, plus a bonus monitoring service:
 
 - **nginx**: the only public entry point (port 443, HTTPS).
 - **wordpress**: the WordPress application (PHP-FPM).
 - **mariadb**: the database storing the site content and accounts.
+- **uptime-kuma** (bonus): a dashboard that monitors whether the website is up, reachable through nginx at `https://status.<login>.42.fr`.
 
 ## Start and stop
 
@@ -28,12 +29,18 @@ All commands are run from the root of the project.
 
 1. Make sure your hosts file maps the domain to the machine, in `/etc/hosts`:
    ```
-   127.0.0.1   <login>.42.fr
+   127.0.0.1   <login>.42.fr status.<login>.42.fr
    ```
    `<login>` is the value of `LOGIN_ROOT` in `srcs/.env`.
 2. Open `https://<login>.42.fr` in a browser.
 3. The TLS certificate is self-signed: accept the browser warning once.
 4. The administration panel is at `https://<login>.42.fr/wp-admin`.
+
+## Use Uptime Kuma (bonus)
+
+1. Open `https://status.<login>.42.fr` (accept the certificate warning).
+2. On the first visit, create the admin account (it is stored in the `uptime-kuma` volume, it is not in `secrets/`).
+3. Click *Add New Monitor*: type `HTTP(s)`, URL `https://<login>.42.fr`, and tick **Ignore TLS/SSL error for HTTPS websites** (the certificate is self-signed). The monitor should turn *Up*.
 
 ## Credentials
 
@@ -52,7 +59,7 @@ These files are not versioned (they are listed in `.gitignore`). Keep them priva
 
 ## Check that everything works
 
-- `make ps` shows `nginx`, `wordpress` and `mariadb` as running (`Up`).
+- `make ps` shows `nginx`, `wordpress`, `mariadb` and `uptime-kuma` as running (`Up`).
 - `make logs` shows no repeated errors. On a healthy start WordPress ends with `WordPress is ready.`.
 - The site answers over HTTPS:
   ```sh
@@ -64,7 +71,8 @@ These files are not versioned (they are listed in `.gitignore`). Keep them priva
 
 ## Troubleshooting
 
-- **The browser cannot find the site**: check the `/etc/hosts` line.
+- **The browser cannot find the site**: check the `/etc/hosts` line (it must contain `<login>.42.fr` and `status.<login>.42.fr`).
+- **The Uptime Kuma monitor is *Down* with a certificate error**: tick *Ignore TLS/SSL error* in the monitor settings.
 - **Port 443 already in use**: stop the other service using it, then `make restart`.
 - **WordPress keeps restarting**: read `make logs`. A common cause is two identical user names in `srcs/.env`, or a `CHANGEME` left in `srcs/.env`. WordPress also refuses two accounts with the same e-mail.
 - **Permission errors on `make clean`**: the data belongs to the container users, which is why cleaning is done through a container (`make clean` handles it).

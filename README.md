@@ -4,20 +4,23 @@
 
 ## Description
 
-Inception is a small web infrastructure built with Docker Compose inside a virtual machine. It serves a WordPress website over HTTPS using three services, each running in its own container built from a custom Dockerfile (Debian bookworm, no pre-built service images):
+Inception is a small web infrastructure built with Docker Compose inside a virtual machine. It serves a WordPress website over HTTPS using three mandatory services plus one bonus service, each running in its own container built from a custom Dockerfile (Debian bookworm, no pre-built service images):
 
 | Service     | Role                                              | Exposed                    |
 |-------------|---------------------------------------------------|----------------------------|
 | `nginx`     | Reverse proxy and TLS termination (TLSv1.2/1.3)   | port **443** (only entry point) |
 | `wordpress` | WordPress served by PHP-FPM 8.2, installed with WP-CLI | port 9000 (internal network) |
 | `mariadb`   | Database for WordPress                            | port 3306 (internal network) |
+| `uptime-kuma` (bonus) | Uptime monitoring dashboard, served by nginx on `status.<login>.42.fr` | port 3001 (internal network) |
 
-The containers share a dedicated bridge network (`inception`). Persistent data (database and website files) lives in two named volumes bound to `/home/<user>/data/mariadb` and `/home/<user>/data/wordpress` on the host. Passwords are provided as Docker secrets; non-sensitive settings come from `srcs/.env`.
+The containers share a dedicated bridge network (`inception`). Persistent data lives in three named volumes bound to `/home/<user>/data/mariadb`, `/home/<user>/data/wordpress` and `/home/<user>/data/uptime-kuma` on the host. Passwords are provided as Docker secrets; non-sensitive settings come from `srcs/.env`.
 
 ```
  Browser ──443/TLS──► nginx ──9000 (FastCGI)──► wordpress ──3306──► mariadb
-                        │                          │                   │
-                        └──── wp_data volume ──────┘            mariadb_data volume
+                        │ │                         │                   │
+                        │ └──── wp_data volume ─────┘            mariadb_data volume
+                        │
+                        └──3001 (status.<login>.42.fr)──► uptime-kuma ── uptime_kuma_data volume
 ```
 
 ## Project description
@@ -28,7 +31,7 @@ Docker is used to run each service in its own isolated, reproducible container, 
 
 - `Makefile`: builds and manages the whole stack (it calls `docker compose`).
 - `srcs/docker-compose.yml`: services, network, volumes and secrets.
-- `srcs/requirements/<service>/`: one Dockerfile per service, with its configuration (`conf/`) and its start-up script (`tools/entrypoint.sh`).
+- `srcs/requirements/<service>/` (bonus services in `srcs/requirements/bonus/<service>/`): one Dockerfile per service, with its configuration (`conf/`) and its start-up script (`tools/entrypoint.sh`).
 - `srcs/.env.exemple` and `secrets/*.exemple`: templates of the settings and passwords (the real files are git-ignored).
 - `tools/Makefile`: helper used by `make setup`.
 
@@ -60,7 +63,7 @@ The four passwords in `secrets/` are generated randomly (the WordPress administr
 Add the domain to `/etc/hosts` (replace `<login>` with your `LOGIN_ROOT`):
 
 ```
-127.0.0.1   <login>.42.fr
+127.0.0.1   <login>.42.fr status.<login>.42.fr
 ```
 
 Build and start everything:
@@ -70,7 +73,7 @@ make            # shows the list of commands
 make all        # creates the data directories, builds the images and starts the containers
 ```
 
-The site is then available at `https://<login>.42.fr` (the certificate is self-signed, so the browser shows a warning). The administration area is at `https://<login>.42.fr/wp-admin`.
+The site is then available at `https://<login>.42.fr` (the certificate is self-signed, so the browser shows a warning). The administration area is at `https://<login>.42.fr/wp-admin`. The bonus monitoring dashboard (Uptime Kuma) is at `https://status.<login>.42.fr`.
 
 Other useful commands: `make down`, `make stop`, `make start`, `make restart`, `make logs`, `make ps`, `make re`, `make clean` (removes containers, volumes **and data**), `make fclean` (also removes images). See `USER_DOC.md` and `DEV_DOC.md` for details.
 
@@ -81,6 +84,10 @@ Other useful commands: `make down`, `make stop`, `make start`, `make restart`, `
 - WordPress and WP-CLI: https://developer.wordpress.org/cli/commands/
 - MariaDB documentation: https://mariadb.com/kb/en/documentation/
 - PHP-FPM configuration: https://www.php.net/manual/en/install.fpm.configuration.php
+
+### Bonus: Uptime Kuma
+
+Uptime Kuma is a self-hosted monitoring tool. It was chosen because it checks that the website stays reachable and shows its history, which fits a web infrastructure. It is built from `debian:bookworm` with Node.js 20 and a pinned release (`1.23.16`), has no published port, and is reached only through nginx. On the first visit, create the admin account in the web interface. To monitor the site, add an HTTP(s) monitor on `https://<login>.42.fr` and tick *Ignore TLS/SSL error* (self-signed certificate). nginx has the network aliases `<login>.42.fr` and `status.<login>.42.fr`, so the containers can resolve these names.
 
 ### Use of AI
 
