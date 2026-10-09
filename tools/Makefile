@@ -18,9 +18,11 @@ deps:
 
 copy:
 	@echo -e "$(BLUE)→ Copying env files...$(NC)"
-	cp ../srcs/.env.exemple ../srcs/.env
-	cp ../secrets/.db_password.exemple ../secrets/.db_password
-	cp ../secrets/.db_root_password.exemple ../secrets/.db_root_password
-	cp ../secrets/.wp_password_admin.exemple ../secrets/.wp_password_admin
-	cp ../secrets/.wp_password_user.exemple ../secrets/.wp_password_user
+	@for f in srcs/.env secrets/.db_password secrets/.db_root_password secrets/.wp_password_admin secrets/.wp_password_user; do \
+		if [ -f ../$$f ]; then \
+			echo -e "$(CYAN)[SKIP]$(NC) $$f already exists"; \
+		else \
+			cp ../$$f.exemple ../$$f && echo -e "$(GREEN)✓ Created$(NC) $$f"; \
+		fi; \
+	done
 	@echo -e "$(RED)[WARN]$(NC) Update 'CHANGEME' values in .env and secrets files"

@@ -8,7 +8,7 @@ WIPE     = docker run --rm -v $(DATA_DIR):/data debian:bookworm sh -c 'rm -rf /d
 	up-wordpress up-nginx up-mariadb \
 	down-wordpress down-nginx down-mariadb \
 	exec-mariadb exec-nginx exec-wordpress \
-	logs ps setup help
+	logs ps purge setup help
 
 .DEFAULT_GOAL := help
 
@@ -24,6 +24,7 @@ help:
 	@echo "  make clean             Remove containers, volumes and data"
 	@echo "  make fclean            Same as clean, also removes images"
 	@echo "  make re                Run fclean then all"
+	@echo "  make purge             fclean + prune ALL unused Docker data on the machine"
 	@echo "  make up-<service>      Build and start one service (wordpress, nginx, mariadb)"
 	@echo "  make down-<service>    Stop and remove one service"
 	@echo "  make exec-<service>    Open a shell inside a container"
@@ -64,12 +65,10 @@ down-wordpress down-nginx down-mariadb: down-%:
 clean:
 	$(COMPOSE) down -v
 	-$(WIPE)
-	-rm -rf $(DATA_DIR)
 
 fclean:
 	$(COMPOSE) down -v --rmi all
 	-$(WIPE)
-	-rm -rf $(DATA_DIR)
 
 re: fclean all
 
