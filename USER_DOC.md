@@ -66,5 +66,5 @@ These files are not versioned (they are listed in `.gitignore`). Keep them priva
 
 - **The browser cannot find the site**: check the `/etc/hosts` line.
 - **Port 443 already in use**: stop the other service using it, then `make restart`.
-- **WordPress keeps restarting**: read `make logs`. A common cause is two identical user names in `srcs/.env`, or a file left with `CHANGEME`.
+- **WordPress keeps restarting**: read `make logs`. A common cause is two identical user names in `srcs/.env`, or a `CHANGEME` left in `srcs/.env`. WordPress also refuses two accounts with the same e-mail.
 - **Permission errors on `make clean`**: the data belongs to the container users, which is why cleaning is done through a container (`make clean` handles it).

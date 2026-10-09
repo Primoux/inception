@@ -23,15 +23,14 @@
 
 ## Set up the environment from scratch
 
-1. `make setup` installs the dependencies (optional, asks for confirmation) and copies each `*.exemple` file to its real name. Files that already exist are **kept**, never overwritten.
-2. Replace every `CHANGEME` in:
-   - `srcs/.env`: `MARIADB_DATABASE`, `LOGIN_ROOT`, `MARIADB_USER`, `WP_ADMIN`, `WP_USER`, the two e-mails. `DOMAIN_NAME` is derived from `LOGIN_ROOT` (`<LOGIN_ROOT>.42.fr`).
-   - `secrets/.db_password`, `.db_root_password`, `.wp_password_admin`, `.wp_password_user`.
+1. `make setup` installs the dependencies (optional, asks for confirmation), then:
+   - copies `srcs/.env.exemple` to `srcs/.env`;
+   - **generates a random 24-character password** for each of the four files in `secrets/` (mode 600).
+   Files that already exist are **kept**, never overwritten.
+2. Replace every `CHANGEME` in `srcs/.env`: `MARIADB_DATABASE`, `LOGIN_ROOT`, `MARIADB_USER`, `WP_ADMIN`, `WP_USER` and the two e-mails (they must be different). `DOMAIN_NAME` is derived from `LOGIN_ROOT` (`<LOGIN_ROOT>.42.fr`). The secrets need no editing, but read `secrets/.wp_password_admin` to log in to `/wp-admin`.
 3. Add `127.0.0.1 <LOGIN_ROOT>.42.fr` to `/etc/hosts`.
 
-Rules checked by the WordPress setup: `WP_ADMIN` must not contain `admin`/`administrator`, and `WP_ADMIN` and `WP_USER` must differ.
-
-> Note: `.env.exemple` currently defines `MARIADB_USER` twice. With Compose, the last value wins, so `MARIADB_USER` ends up as `CHANGEME` and not as `${LOGIN_ROOT}`. Keep a single line in your `.env`.
+Rules for the WordPress accounts: `WP_ADMIN` must not contain `admin`/`administrator`, and `WP_ADMIN` / `WP_USER` and their e-mails must differ (WordPress rejects a duplicate e-mail).
 
 ## Build and launch
 
@@ -67,8 +66,9 @@ The data wipe runs `rm -rf` inside a throwaway `debian:bookworm` container becau
 
 Persistence means the entrypoints must be idempotent. They only act on what is missing, so a restart never reinstalls anything:
 
-- **mariadb**: runs `mariadb-install-db` only if `/var/lib/mysql/mysql` does not exist. A temporary SQL file (mode 600) sets the root password, creates the database and the user, and is deleted as soon as the server answers.
-- **wordpress**: downloads the core if `wp-load.php` is missing, waits for the database, creates `wp-config.php` and installs the site only if needed, and creates the second user if it does not exist.
+- **mariadb**: runs `mariadb-install-db` only if `/var/lib/mysql/mysql` does not exist. At every start, a one-shot `mariadbd --bootstrap` run applies the root password, the database and the user from a here-document (no file is written), then the real server starts.
+- **wordpress**: downloads the core if `wp-load.php` is missing, creates `wp-config.php` and installs the site only if needed, and creates the second user if it does not exist.
+- **start-up order**: no script waits in a loop. `docker-compose.yml` orders the services with healthchecks: `wordpress` starts once `mariadb` answers a ping (`service_healthy`), and `nginx` starts once WordPress is installed and PHP-FPM listens on 9000 (`service_healthy`).
 - **nginx**: generates a self-signed certificate at every start and fills `${DOMAIN_NAME}` / `${LOGIN_ROOT}` in `nginx.conf` with `sed`.
 
 ## Secrets and configuration

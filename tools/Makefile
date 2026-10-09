@@ -17,12 +17,18 @@ deps:
 	@echo -ne "Add user to docker group? [Y/n] " && read B && if [[ $$B == [Yy] ]] || [[ $$B == "" ]]; then sudo usermod -aG docker $$USER && echo -e "$(GREEN)✓ Done$(NC) - restart shell"; else echo -e "$(RED)[WARN]$(NC) Run manually: $(CYAN)sudo usermod -aG docker $$USER$(NC)"; fi
 
 copy:
-	@echo -e "$(BLUE)→ Copying env files...$(NC)"
-	@for f in srcs/.env secrets/.db_password secrets/.db_root_password secrets/.wp_password_admin secrets/.wp_password_user; do \
+	@echo -e "$(BLUE)→ Creating env and secrets files...$(NC)"
+	@if [ -f ../srcs/.env ]; then \
+		echo -e "$(CYAN)[SKIP]$(NC) srcs/.env already exists"; \
+	else \
+		cp ../srcs/.env.exemple ../srcs/.env && echo -e "$(GREEN)✓ Created$(NC) srcs/.env"; \
+	fi
+	@for f in secrets/.db_password secrets/.db_root_password secrets/.wp_password_admin secrets/.wp_password_user; do \
 		if [ -f ../$$f ]; then \
 			echo -e "$(CYAN)[SKIP]$(NC) $$f already exists"; \
 		else \
-			cp ../$$f.exemple ../$$f && echo -e "$(GREEN)✓ Created$(NC) $$f"; \
+			(umask 077 && tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 24 > ../$$f) && echo -e "$(GREEN)✓ Generated$(NC) $$f (random password)"; \
 		fi; \
 	done
-	@echo -e "$(RED)[WARN]$(NC) Update 'CHANGEME' values in .env and secrets files"
+	@echo -e "$(RED)[WARN]$(NC) Update the 'CHANGEME' values in srcs/.env (secrets are already random)"
+	@echo -e "$(RED)[WARN]$(NC) The WordPress admin password is in secrets/.wp_password_admin"

@@ -49,13 +49,13 @@ Every image is built from `debian:bookworm` (the penultimate stable Debian relea
 Requirements: Linux with Docker and the Docker Compose plugin, and `make`.
 
 ```sh
-make setup      # (once) install dependencies and create .env + secrets from the *.exemple templates
+make setup      # (once) install dependencies, create srcs/.env from the template and generate random secrets
 ```
 
-Then edit `srcs/.env` and the four files in `secrets/` and replace every `CHANGEME`:
+The four passwords in `secrets/` are generated randomly (the WordPress administrator password is in `secrets/.wp_password_admin`). Edit `srcs/.env` and replace every `CHANGEME`:
 
 - `WP_ADMIN` must not contain `admin` or `administrator`.
-- `WP_ADMIN` and `WP_USER` must be two different names.
+- `WP_ADMIN` and `WP_USER` must be two different names, with two different e-mails.
 
 Add the domain to `/etc/hosts` (replace `<login>` with your `LOGIN_ROOT`):
 
