@@ -53,10 +53,7 @@ services:
       uptime-kuma:
         condition: service_healthy
     networks:
-      inception:
-        aliases:
-          - ${DOMAIN_NAME}
-          - status.${DOMAIN_NAME}
+      - inception
     ports:
       - "443:443"
     volumes:
