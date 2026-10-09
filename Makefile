@@ -9,6 +9,10 @@ help:
 	@echo "Available commands:"
 	@echo "  make all		Build and start all containers"
 	@echo "  make up		Start all containers"
+	@echo "  make up-wordpress	Start the wordpress container"
+	@echo "  make up-nginx		Start the nginx container"
+	@echo "  make up-mariadb	Start the mariadb container"
+
 	@echo "  make down		Stop the containers"
 	@echo "  make clean		Stop the containers and remove volumes/data"
 	@echo "  make fclean		Same as clean, also removes local images"
@@ -29,6 +33,15 @@ all:
 	mkdir -p /home/$(USER)/data/mariadb
 	mkdir -p /home/$(USER)/data/wordpress
 	docker compose -f $(SRCS) up --build -d
+
+up-wordpress:
+	docker compose -f $(SRCS) up --build -d wordpress
+
+up-nginx:
+	docker compose -f $(SRCS) up --build -d nginx
+
+up-mariadb:
+	docker compose -f $(SRCS) up --build -d mariadb
 
 down:
 	docker compose -f $(SRCS) down

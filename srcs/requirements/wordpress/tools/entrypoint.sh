@@ -33,10 +33,13 @@ if [ ! -f /var/www/html/wp-load.php ]; then
   php /usr/bin/wp core download --path=/var/www/html --allow-root
 fi
 
-# until php /usr/bin/wp db check --path=/var/www/html/wordpress --allow-root >/dev/null 2>&1; do
-#   echo "Waiting for WordPress DB access..."
-#   sleep 2
-# done
+echo "Waiting for database..."
+until MP="${MARIADB_PASSWORD}" php -r 'new mysqli("mariadb", getenv("MARIADB_USER"), getenv("MP"), getenv("MARIADB_DATABASE"));' >/dev/null 2>&1; do
+  echo "Waiting for database..."
+  sleep 2
+done
+
+echo "Database is ready."
 
 if [ ! -f /var/www/html/wp-config.php ]; then
   echo "initializing wp-config..."
@@ -58,7 +61,7 @@ if ! php /var/www/html/wp-cli.phar core is-installed --path=/var/www/html --allo
     --url="https://${DOMAIN_NAME}" \
     --title="Primoux" \
     --admin_user="${WP_ADMIN}" \
-    --admin_password="${WP_ADMIN_PASS}" \
+    --admin_password="${ADMIN_PASSWORD}" \
     --admin_email="${WP_ADMIN_EMAIL}" \
     --locale=fr_FR \
     --skip-email \
