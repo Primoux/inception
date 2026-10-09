@@ -21,4 +21,6 @@ copy:
 	cp ../srcs/.env.exemple ../srcs/.env
 	cp ../secrets/.db_password.exemple ../secrets/.db_password
 	cp ../secrets/.db_root_password.exemple ../secrets/.db_root_password
+	cp ../secrets/.wp_password_admin.exemple ../secrets/.wp_password_admin
+	cp ../secrets/.wp_password_user.exemple ../secrets/.wp_password_user
 	@echo -e "$(RED)[WARN]$(NC) Update 'CHANGEME' values in .env and secrets files"
