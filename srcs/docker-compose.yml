@@ -4,32 +4,34 @@ services:
     image: mariadb:v1
     container_name: mariadb
     restart: always
+    env_file: .env
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h localhost -uroot -p\"$$(cat /run/secrets/db_root_password)\" --silent"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
     networks:
       - inception
-    volumes:
-      - mariadb_data:/var/lib/mysql
-    env_file: .env
     secrets:
       - db_password
       - db_root_password
-  nginx:
-    build: ./requirements/nginx
-    image: nginx:v1
-    env_file: .env
-    container_name: nginx
-    restart: always
-    networks:
-      - inception
-    ports:
-      - "443:443"
     volumes:
-      - wp_data:/var/www/html
+      - mariadb_data:/var/lib/mysql
+
   wordpress:
-    env_file: .env
     build: ./requirements/wordpress
     image: wordpress:v1
     container_name: wordpress
     restart: always
+    env_file: .env
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wp core is-installed --path=/var/www/html --allow-root && php -r 'exit(@fsockopen(\"127.0.0.1\", 9000) ? 0 : 1);'"]
+      interval: 5s
+      timeout: 5s
+      retries: 40
     networks:
       - inception
     secrets:
@@ -39,7 +41,21 @@ services:
     volumes:
       - wp_data:/var/www/html
 
-
+  nginx:
+    build: ./requirements/nginx
+    image: nginx:v1
+    container_name: nginx
+    restart: always
+    env_file: .env
+    depends_on:
+      wordpress:
+        condition: service_healthy
+    networks:
+      - inception
+    ports:
+      - "443:443"
+    volumes:
+      - wp_data:/var/www/html
 
 volumes:
   mariadb_data:
@@ -54,7 +70,6 @@ volumes:
       type: none
       o: bind
       device: /home/${USER}/data/wordpress
-
 
 networks:
   inception:

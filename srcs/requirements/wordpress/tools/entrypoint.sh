@@ -10,14 +10,6 @@ if [ ! -f /var/www/html/wp-load.php ]; then
   wp core download --path=/var/www/html --allow-root
 fi
 
-echo "Waiting for database..."
-until MP="${MARIADB_PASSWORD}" php -r 'new mysqli("mariadb", getenv("MARIADB_USER"), getenv("MP"), getenv("MARIADB_DATABASE"));' >/dev/null 2>&1; do
-  echo "Waiting for database..."
-  sleep 2
-done
-
-echo "Database is ready."
-
 if [ ! -f /var/www/html/wp-config.php ]; then
   echo "initializing wp-config..."
   wp config create \
