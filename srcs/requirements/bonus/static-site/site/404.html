@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 ~ Primoux</title>
+    <link rel="stylesheet" href="/site/style.css">
+</head>
+<body data-theme="green">
+    <main class="crt">
+        <div id="output">
+            <div class="cmd">guest@inception:~$ cat <span id="path">/page</span></div>
+            <div class="err">cat: <span id="path2">/page</span>: No such file or directory</div>
+            <div class="dim">Error 404. Nothing to see here.</div>
+            <div><a href="/site/">back to the terminal</a></div>
+        </div>
+    </main>
+    <script>
+        var p = location.pathname;
+        document.getElementById("path").textContent = p;
+        document.getElementById("path2").textContent = p;
+    </script>
+</body>
+</html>
