@@ -76,6 +76,7 @@ services:
       retries: 5
     volumes:
       - uptime_kuma_data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
 
   static-site:
     build: ./requirements/bonus/static-site
