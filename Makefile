@@ -42,7 +42,7 @@ dirs:
 all: dirs
 	$(COMPOSE) up --build -d
 
-up:
+up: dirs
 	$(COMPOSE) up --build -d
 
 down:

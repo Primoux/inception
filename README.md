@@ -12,12 +12,14 @@ Inception is a small web infrastructure built with Docker Compose inside a virtu
 | `wordpress` | WordPress served by PHP-FPM 8.2, installed with WP-CLI | port 9000 (internal network) |
 | `mariadb`   | Database for WordPress                            | port 3306 (internal network) |
 
-The containers share a dedicated bridge network (`inception`). Persistent data (database and website files) lives in two named volumes bound to `/home/<user>/data/mariadb` and `/home/<user>/data/wordpress` on the host. Passwords are provided as Docker secrets; non-sensitive settings come from `srcs/.env`.
+The containers share a dedicated bridge network (`inception`). Persistent data (database and website files) lives in two named volumes bound to `/home/<user>/data/mariadb` and `/home/<user>/data/wordpress` on the host. A third named volume, bound to `/home/<user>/data/ssl_certs`, keeps the self-signed TLS certificate of nginx so it is not regenerated at every start. Passwords are provided as Docker secrets; non-sensitive settings come from `srcs/.env`.
 
 ```
  Browser ──443/TLS──► nginx ──9000 (FastCGI)──► wordpress ──3306──► mariadb
                         │                          │                   │
-                        └──── wp_data volume ──────┘            mariadb_data volume
+                        ├──── wp_data volume ──────┘            mariadb_data volume
+                        │
+                        └──── ssl_certs volume
 ```
 
 ### Bonus: static website
