@@ -2,12 +2,12 @@ NAME     = inception
 SRCS     = ./srcs/docker-compose.yml
 DATA_DIR = /home/$(USER)/data
 COMPOSE  = docker compose -f $(SRCS)
-WIPE     = docker run --rm -v $(DATA_DIR):/data debian:bookworm sh -c 'rm -rf /data/mariadb /data/wordpress'
+WIPE     = docker run --rm -v $(DATA_DIR):/data debian:bookworm sh -c 'rm -rf /data/mariadb /data/wordpress /data/ssl_certs'
 
 .PHONY: all up dirs down stop start restart re clean fclean \
-	up-wordpress up-nginx up-mariadb \
-	down-wordpress down-nginx down-mariadb \
-	exec-mariadb exec-nginx exec-wordpress \
+	up-wordpress up-nginx up-mariadb up-static-site \
+	down-wordpress down-nginx down-mariadb down-static-site \
+	exec-mariadb exec-nginx exec-wordpress exec-static-site \
 	logs ps purge setup help
 
 .DEFAULT_GOAL := help
@@ -37,12 +37,13 @@ setup:
 	@make -C tools/ --no-print-directory
 
 dirs:
-	mkdir -p $(DATA_DIR)/mariadb $(DATA_DIR)/wordpress
+	mkdir -p $(DATA_DIR)/mariadb $(DATA_DIR)/wordpress $(DATA_DIR)/ssl_certs
 
 all: dirs
 	$(COMPOSE) up --build -d
 
-up: all
+up:
+	$(COMPOSE) up --build -d
 
 down:
 	$(COMPOSE) down
@@ -72,7 +73,7 @@ fclean:
 
 re: fclean all
 
-exec-mariadb exec-nginx exec-wordpress: exec-%:
+exec-mariadb exec-nginx exec-wordpress exec-static-site: exec-%:
 	docker exec -it $* bash
 
 logs:
