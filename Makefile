@@ -5,9 +5,9 @@ COMPOSE  = docker compose -f $(SRCS)
 WIPE     = docker run --rm -v $(DATA_DIR):/data debian:bookworm sh -c 'rm -rf /data/mariadb /data/wordpress /data/uptime-kuma'
 
 .PHONY: all up dirs down stop start restart re clean fclean \
-	up-wordpress up-nginx up-mariadb up-uptime-kuma up-static-site \
-	down-wordpress down-nginx down-mariadb down-uptime-kuma down-static-site \
-	exec-mariadb exec-nginx exec-wordpress exec-uptime-kuma exec-static-site \
+	up-wordpress up-nginx up-mariadb up-uptime-kuma up-static-site up-static-site \
+	down-wordpress down-nginx down-mariadb down-uptime-kuma down-static-site down-static-site \
+	exec-mariadb exec-nginx exec-wordpress exec-uptime-kuma exec-static-site exec-static-site \
 	logs ps purge setup help
 
 .DEFAULT_GOAL := help
@@ -37,12 +37,13 @@ setup:
 	@make -C tools/ --no-print-directory
 
 dirs:
-	mkdir -p $(DATA_DIR)/mariadb $(DATA_DIR)/wordpress $(DATA_DIR)/uptime-kuma
+	mkdir -p $(DATA_DIR)/mariadb $(DATA_DIR)/wordpress $(DATA_DIR)/uptime-kuma $(DATA_DIR)/ssl_certs
 
 all: dirs
 	$(COMPOSE) up --build -d
 
-up: all
+up:
+	$(COMPOSE) up --build -d
 
 down:
 	$(COMPOSE) down

@@ -1,6 +1,6 @@
 FROM debian:bookworm
 
-RUN apt-get update && apt-get install mariadb-server -y
+RUN apt-get update && apt-get install --no-install-recommends -y mariadb-server
 
 COPY conf/99-bind.cnf /etc/mysql/mariadb.conf.d/
 

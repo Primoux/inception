@@ -1,6 +1,6 @@
 FROM debian:bookworm
 
-RUN apt-get update && apt-get install -y nginx openssl gettext-base \
+RUN apt-get update && apt-get install --no-install-recommends -y nginx openssl curl gettext-base \
     && rm /etc/nginx/sites-enabled/default
 
 RUN mkdir -p /etc/nginx/ssl
